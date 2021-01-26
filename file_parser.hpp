@@ -61,7 +61,7 @@ namespace util {
         enum match_style {
             CHAR, STRING, CHARS, NOT_CHARS, WORD_BOUNDARY
         };
-        void seek_impl(const std::string& str, size_t opts, const std::string& err, match_style style);
+        bool seek_impl(const std::string& str, size_t opts, const std::string& err, match_style style);
         bool match_impl(const std::string& str, size_t opts, const std::string& err, match_style style);
                                 
         void error(bool show_context, const std::string& message) const;
@@ -98,15 +98,16 @@ namespace util {
         
         void set_cont_char(char cont);
         
-        static const size_t single_line = 0b001;
-        static const size_t consume     = 0b010;
-        static const size_t backwards   = 0b100;
+        static const size_t single_line = 0b0001;
+        static const size_t consume     = 0b0010;
+        static const size_t backwards   = 0b0100;
+        static const size_t lookahead   = 0b1000;
         
-        void seek(char ch, size_t opts = 0, const std::string& err = "");
-        void seek(const std::string& str, size_t opts = 0, const std::string& err = "");
-        void seek_any_of(const std::string& str, size_t opts = 0, const std::string& err = "");
-        void seek_not_of(const std::string& str, size_t opts = 0, const std::string& err = "");
-        void seek_word_boundary(size_t opts = 0, const std::string& err = "");
+        bool seek(char ch, size_t opts = 0, const std::string& err = "");
+        bool seek(const std::string& str, size_t opts = 0, const std::string& err = "");
+        bool seek_any_of(const std::string& str, size_t opts = 0, const std::string& err = "");
+        bool seek_not_of(const std::string& str, size_t opts = 0, const std::string& err = "");
+        bool seek_word_boundary(size_t opts = 0, const std::string& err = "");
         
         bool match(char ch, size_t opts = 0, const std::string& err = "");
         bool match(const std::string& str, size_t opts = 0, const std::string& err = "");

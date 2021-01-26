@@ -221,30 +221,41 @@ void file_parser::set_cont_char(char cont){
 }
             
 
-void file_parser::seek(char chr, size_t opts, const std::string& err){
-    seek_impl(std::string(1, chr), opts, err, CHAR);
+bool file_parser::seek(char chr, size_t opts, const std::string& err){
+    return seek_impl(std::string(1, chr), opts, err, CHAR);
 }
-void file_parser::seek(const std::string& str, size_t opts, const std::string& err){
-    seek_impl(str, opts, err, STRING);
+bool file_parser::seek(const std::string& str, size_t opts, const std::string& err){
+    return seek_impl(str, opts, err, STRING);
 }
-void file_parser::seek_any_of(const std::string& chrs, size_t opts, const std::string& err){
-    seek_impl(chrs, opts, err, CHARS);
+bool file_parser::seek_any_of(const std::string& chrs, size_t opts, const std::string& err){
+    return seek_impl(chrs, opts, err, CHARS);
 }
-void file_parser::seek_not_of(const std::string& chrs, size_t opts, const std::string& err){
-    seek_impl(chrs, opts, err, NOT_CHARS);
+bool file_parser::seek_not_of(const std::string& chrs, size_t opts, const std::string& err){
+    return seek_impl(chrs, opts, err, NOT_CHARS);
 }
-void file_parser::seek_word_boundary(size_t opts, const std::string& err){
-    seek_impl("", opts, err, WORD_BOUNDARY);
+bool file_parser::seek_word_boundary(size_t opts, const std::string& err){
+    return seek_impl("", opts, err, WORD_BOUNDARY);
 }
-void file_parser::seek_impl(const std::string& str, size_t opts, const std::string& err, match_style style){
+bool file_parser::seek_impl(const std::string& str, size_t opts, const std::string& err, match_style style){
+    
+    if(opts & lookahead)
+        set_mark();
     
     do{
-        if( match_impl(str, opts, "", style) )
-            return;
-        
+        if( match_impl(str, opts, "", style) ){
+            if(opts & lookahead)
+                revert_to_mark();
+            
+            return true;
+        }
     } while (advance_char(opts));
+
+    if(opts & lookahead)
+        revert_to_mark();
     
-    if(!err.empty())
+    if(err.empty())
+        return false;
+    else
         error(err);
     
 }
